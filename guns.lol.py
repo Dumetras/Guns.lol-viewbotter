@@ -11,8 +11,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# Paths to the Chrome executable
-CHROME_EXECUTABLE_PATH = r'C:\Program Files\Google\Chrome\Application\chrome.exe'  # Path to your Chrome executable
+# Paths to the Chrome executable and ChromeDriver
+CHROME_EXECUTABLE_PATH = r'C:\Users\doom\Downloads\chrome-win64\chrome-win64\chrome.exe'  # Path to your Chrome executable
+CHROMEDRIVER_PATH = r'C:\Users\doom\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe'  # Path to your ChromeDriver executable
 
 # List of user agents
 user_agents = [
@@ -24,7 +25,7 @@ user_agents = [
 ]
 
 # Target URL
-target_url = "https://guns.lol/pronhubstar"
+target_url = "https://guns.lol/dumetras"
 
 # ANSI color codes for styling
 class bcolors:
@@ -91,7 +92,7 @@ def simulate_view(proxies):
     reason = None
     try:
         # Install the correct version of ChromeDriver
-        chromedriver_autoinstaller.install()  # Automatically install ChromeDriver for the current Chrome version
+        chromedriver_autoinstaller.install(path=CHROMEDRIVER_PATH)  # Automatically install ChromeDriver for the current Chrome version
 
         driver = uc.Chrome(
             options=options,
