@@ -13,7 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # Paths to the Chrome executable and ChromeDriver
 CHROME_EXECUTABLE_PATH = r'C:\Users\doom\Downloads\chrome-win64\chrome-win64\chrome.exe'  # Path to your Chrome executable
-CHROMEDRIVER_PATH = r'C:\Users\doom\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe'  # Path to your ChromeDriver executable
+CHROMEDRIVER_PATH = r'C:\Users\doom\Downloads\chromedriver-win64\chromedriver.exe'  # Corrected path to your ChromeDriver executable
 
 # List of user agents
 user_agents = [
@@ -57,7 +57,7 @@ def load_proxies_from_file(file_path):
         with open(file_path, 'r') as file:
             for line in file:
                 line = line.strip()
-                if line.startswith("http://") or line.startswith("https://"):
+                if line.startswith("http://") or line.startswith("https://") or line.startswith("socks4://"):
                     proxies.append(line)
     except FileNotFoundError:
         print(f"{bcolors.FAIL}Proxy file not found: {file_path}{bcolors.ENDC}")
@@ -65,8 +65,13 @@ def load_proxies_from_file(file_path):
     return proxies
 
 def get_random_proxy(proxies):
+    if not proxies:
+        raise IndexError("Cannot choose from an empty sequence")
     proxy_url = random.choice(proxies)
-    return {"http": proxy_url, "https": proxy_url}
+    if proxy_url.startswith("socks4://"):
+        return {"http": proxy_url, "https": proxy_url, "socksProxy": proxy_url}
+    else:
+        return {"http": proxy_url, "https": proxy_url}
 
 def get_random_user_agent():
     return random.choice(user_agents)
@@ -83,9 +88,17 @@ def get_chrome_options():
     return options
 
 def simulate_view(proxies):
-    proxy = get_random_proxy(proxies)
+    try:
+        proxy = get_random_proxy(proxies)
+    except IndexError as e:
+        print(f"{bcolors.FAIL}{e}{bcolors.ENDC}")
+        return False, str(e)
+    
     options = get_chrome_options()
-    options.add_argument(f'--proxy-server={proxy["http"]}')  # Set the proxy
+    if "socksProxy" in proxy:
+        options.add_argument(f'--proxy-server=socks4://{proxy["socksProxy"]}')  # Set the SOCKS4 proxy
+    else:
+        options.add_argument(f'--proxy-server={proxy["http"]}')  # Set the HTTP proxy
 
     driver = None
     success = False
